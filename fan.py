@@ -1,5 +1,6 @@
 '''
 fan 代表番数这一类。番数包括名字，类别，以及信息
+card_dependent_fan是和卡牌相关的番
 '''
 
 class fan:
@@ -12,8 +13,8 @@ class fan:
         if self.info is None:
             return f"{self.name}，{self.amount}番。"
 
-class gang(fan):
-    def __init__(self, card, n, show):
+class card_dependent_fan(fan):
+    def __init__(self, name, amount, card, n, show):
         self.name = self.get_name(card,n,show)
         self.amount = self.get_amount(card,n,show)
     
