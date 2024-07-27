@@ -1,7 +1,10 @@
 '''
 cards这个是代表的整套卡的格式，待定
 目前定的格式是：
-你的牌 & 单张杠的牌 & 面上的牌
+你的牌 & 单张杠的牌 & 开口的牌
+如果没有开口的牌，只有一个&即可
+有就必须两个&都要
+如果单张杠和开口的都没有，那就不用
 牌的格式：
 前两位代表牌正面信息，后面代表其他信息
 前两位：数字是数字，符号是符号，万用：0-9万用：ws（wildcard small），10-19万用：wm
@@ -23,7 +26,11 @@ cards这个是代表的整套卡的格式，待定
 我手牌2 + 3 2 + 3 5，此时有宝牌11杠出，并且吃了6+7=13以及9+10=19
 此时我胡牌1凑成1+2=3
 例子2：
-
+(2m32) 2m32 wm10 10 11 11d 14 14 16 16 18 18 20 20 wl25 5m25 & 13d ws
+表示的是：
+我手牌一个两万当做32，一个10-19万用当做10，一个10，一个11，一个11宝牌，两个14,16,18,
+20，一个五万当做25，一个20+万用牌当做25。杠出来了一个宝牌13，和0-9万用，此时我摸到一
+张两万，胡八小对。
 注意！有特殊牌型！
 '''
 from card import card
@@ -32,10 +39,19 @@ from card import card
 BAXIAODUI = "八小对"
 
 class cards:
-    def __init__(self, cards_string):
+    def __init__(self, cards_string:str):
         self.equation_set = [] # 整理出所有的算式，如果有
         self.is_special = False # 看是否是特殊牌型
         self.special = None
-        self.value_set = []
-        self.card_set = []
+        self.value_set = [] # 牌的值的集合
+        self.card_set = [] # 牌的集合
+        self.value_set_dora_incl = [] # 牌的值的集合，包括宝牌
+        self.card_set_dora_incl = [] # 牌的集合，包括宝牌
+        self._parse(cards_string)
+        pass
+    
+    def _parse(self, card_string):
+        # 将卡牌变成卡的集合
+        yours, dora, kaikou = [], [], []
+        card_string
         pass
