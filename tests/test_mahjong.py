@@ -4,7 +4,8 @@
 """
 
 import pytest
-from mahjong_checker import ArithmeticMahjong, parse_hand, format_hand
+from mahjong_checker import ArithmeticMahjong
+from parser import parse_hand, format_hand
 
 
 # ============================================================

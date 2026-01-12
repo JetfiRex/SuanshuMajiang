@@ -3,7 +3,8 @@
 提供交互式界面来判定胡牌和听牌
 """
 
-from mahjong_checker import ArithmeticMahjong, parse_hand, format_hand
+from mahjong_checker import ArithmeticMahjong
+from parser import parse_hand, format_hand
 
 def print_welcome():
     """打印欢迎信息"""

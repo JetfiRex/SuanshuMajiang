@@ -6,18 +6,18 @@
 from collections import Counter
 from itertools import combinations
 
+from parser import (
+    PLUS, MULTIPLY, POWER, SYMBOLS,
+    JOKER_TIAO, JOKER_TONG, JOKER_WAN, JOKER_SYMBOL, JOKERS,
+)
+
+
 class TraditionalMahjongChecker:
     """传统麻将胡牌判定器（支持万用牌）"""
     
     def __init__(self):
         # 数字到麻将牌面的映射
         self.num_to_tile = self._init_mapping()
-        
-        # 万用牌定义
-        self.JOKER_TIAO = 'joker_tiao'  # 条子万用牌（代替1-9条）
-        self.JOKER_TONG = 'joker_tong'  # 筒子万用牌（代替1-9筒）
-        self.JOKER_WAN = 'joker_wan'    # 万子万用牌（代替1-9万）
-        self.JOKER_SYMBOL = 'joker_symbol'  # 符号万用牌（代替中发白）
         
     def _init_mapping(self):
         """
@@ -48,18 +48,18 @@ class TraditionalMahjongChecker:
         mapping[40] = ('风', '西')
         
         # 箭牌（符号）
-        mapping['+'] = ('箭', '中')
-        mapping['×'] = ('箭', '发')
-        mapping['∧'] = ('箭', '白')
+        mapping[PLUS] = ('箭', '中')
+        mapping[MULTIPLY] = ('箭', '发')
+        mapping[POWER] = ('箭', '白')
         
         # 0 可以代替所有牌（在传统麻将中）
         mapping[0] = ('万用', 0)
         
         # 万用牌映射
-        mapping['joker_tiao'] = ('万用', '条')
-        mapping['joker_tong'] = ('万用', '筒')
-        mapping['joker_wan'] = ('万用', '万')
-        mapping['joker_symbol'] = ('万用', '箭')
+        mapping[JOKER_TIAO] = ('万用', '条')
+        mapping[JOKER_TONG] = ('万用', '筒')
+        mapping[JOKER_WAN] = ('万用', '万')
+        mapping[JOKER_SYMBOL] = ('万用', '箭')
         
         return mapping
     
@@ -371,7 +371,7 @@ class TraditionalMahjongChecker:
         for wind in [10, 20, 30, 40]:
             nums.append(wind)
         # 符号
-        for symbol in ['+', '×', '∧']:
+        for symbol in [PLUS, MULTIPLY, POWER]:
             nums.append(symbol)
         return nums
     
@@ -385,12 +385,6 @@ class TraditionalMahjongChecker:
 
 class EightPairsChecker:
     """八小对胡牌判定器（支持万用牌，但0不是万用牌）"""
-    
-    def __init__(self):
-        self.JOKER_TIAO = 'joker_tiao'
-        self.JOKER_TONG = 'joker_tong'
-        self.JOKER_WAN = 'joker_wan'
-        self.JOKER_SYMBOL = 'joker_symbol'
     
     def can_win_eight_pairs(self, hand):
         """
@@ -409,18 +403,17 @@ class EightPairsChecker:
         # 分离普通牌和万用牌
         # 注意：0在八小对中是普通牌，不是万用牌
         normal_tiles = []
-        jokers = []
+        joker_list = []
         
         for tile in hand:
-            if tile in [self.JOKER_TIAO, self.JOKER_TONG, 
-                       self.JOKER_WAN, self.JOKER_SYMBOL]:
-                jokers.append(tile)
+            if tile in JOKERS:
+                joker_list.append(tile)
             else:
                 # 0也算普通牌
                 normal_tiles.append(tile)
         
         # 尝试用万用牌组成对子
-        return self._try_eight_pairs_with_jokers(normal_tiles, jokers)
+        return self._try_eight_pairs_with_jokers(normal_tiles, joker_list)
     
     def _try_eight_pairs_with_jokers(self, tiles, jokers):
         """尝试用万用牌组成八小对"""
@@ -478,12 +471,11 @@ class EightPairsChecker:
         # 分离普通牌和万用牌
         # 0在八小对中是普通牌
         normal_tiles = []
-        jokers = []
+        joker_list = []
         
         for tile in hand:
-            if tile in [self.JOKER_TIAO, self.JOKER_TONG, 
-                       self.JOKER_WAN, self.JOKER_SYMBOL]:
-                jokers.append(tile)
+            if tile in JOKERS:
+                joker_list.append(tile)
             else:
                 normal_tiles.append(tile)
         
@@ -500,21 +492,21 @@ class EightPairsChecker:
         
         # 情况2: 考虑万用牌的组合
         # 使用万用牌后的对子数
-        jokers_for_singles = min(len(singles), len(jokers))
-        remaining_jokers = len(jokers) - jokers_for_singles
+        jokers_for_singles = min(len(singles), len(joker_list))
+        remaining_jokers = len(joker_list) - jokers_for_singles
         
         total_pairs = pairs_count + jokers_for_singles + remaining_jokers // 2
         remaining_singles = len(singles) - jokers_for_singles + remaining_jokers % 2
         
         if total_pairs == 7 and remaining_singles == 1:
             # 找出哪张是单张
-            if len(singles) > len(jokers):
+            if len(singles) > len(joker_list):
                 # 有单张没被配对
                 return True, [s for s in singles if counter[s] % 2 == 1]
             elif remaining_jokers % 2 == 1:
                 # 万用牌有剩余单张，任意牌都可以
                 # 返回所有可能的牌
-                all_tiles = set(range(50)) | {'+', '×', '∧'}
-                return True, sorted(list(all_tiles), key=lambda x: (x not in {'+', '×', '∧'}, x))
+                all_tiles = set(range(50)) | SYMBOLS
+                return True, sorted(list(all_tiles), key=lambda x: (x not in SYMBOLS, x))
         
         return False, []

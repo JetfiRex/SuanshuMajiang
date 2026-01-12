@@ -1,6 +1,13 @@
 from itertools import combinations, product
 from collections import Counter
 
+from parser import (
+    PLUS, MULTIPLY, POWER, SYMBOLS,
+    JOKER_TIAO, JOKER_TONG, JOKER_WAN, JOKER_SYMBOL, JOKERS,
+    ALL_TILES,
+    parse_hand, format_hand,
+)
+
 # 导入传统麻将和八小对判定器
 # 注意：需要将 traditional_mahjong.py 放在同一目录下
 try:
@@ -24,26 +31,17 @@ class ArithmeticMahjong:
                                True: 标准规则，加法和必须>=10（默认）
                                False: 新手规则，加法和可以<10
         """
-        # 定义符号
-        self.PLUS = '+'
-        self.MULTIPLY = '×'
-        self.POWER = '∧'
-        self.symbols = {self.PLUS, self.MULTIPLY, self.POWER}
+        # 使用 parser 模块的常量
+        self.symbols = SYMBOLS
 
         # 规则设置
         self.require_sum_gte_10 = require_sum_gte_10
 
-        # 定义万用牌
-        self.JOKER_TIAO = 'joker_tiao'  # 条子万用牌（0-9）
-        self.JOKER_TONG = 'joker_tong'  # 筒子万用牌（10-19）
-        self.JOKER_WAN = 'joker_wan'  # 万字万用牌（20-49）
-        self.JOKER_SYMBOL = 'joker_symbol'  # 符号万用牌
-
-        # 定义所有可能的牌（根据规则文档）
-        self.all_tiles = self._init_all_tiles()
+        # 所有可能的牌（从 parser 模块导入）
+        self.all_tiles = ALL_TILES.copy()
 
         # 牌库中存在的牌（用于判断是否需要标注"需要万用"）
-        self.tiles_in_pool = self._init_tiles_in_pool()
+        self.tiles_in_pool = ALL_TILES.copy()
 
         # 初始化传统麻将和八小对判定器
         if TRADITIONAL_AVAILABLE:
@@ -52,24 +50,6 @@ class ArithmeticMahjong:
         else:
             self.traditional_checker = None
             self.eight_pairs_checker = None
-
-    def _init_all_tiles(self):
-        """初始化所有可能的牌"""
-        tiles = set()
-        # 数字牌：0-21, 24, 25, 27, 28, 30, 32, 35, 36, 40, 49
-        for i in range(22):
-            tiles.add(i)
-        for i in [24, 25, 27, 28, 30, 32, 35, 36, 40, 49]:
-            tiles.add(i)
-        # 符号牌
-        tiles.add(self.PLUS)
-        tiles.add(self.MULTIPLY)
-        tiles.add(self.POWER)
-        return tiles
-
-    def _init_tiles_in_pool(self):
-        """初始化牌库中实际存在的牌"""
-        return self.all_tiles.copy()
 
     def is_valid_formula(self, tiles):
         """
@@ -81,8 +61,7 @@ class ArithmeticMahjong:
             return False
 
         # 分离万用牌和普通牌
-        jokers = [t for t in tiles if t in [self.JOKER_TIAO, self.JOKER_TONG,
-                                            self.JOKER_WAN, self.JOKER_SYMBOL]]
+        jokers = [t for t in tiles if t in JOKERS]
         normal = [t for t in tiles if t not in jokers]
 
         # 如果有万用牌，需要尝试所有可能的替换
@@ -94,7 +73,7 @@ class ArithmeticMahjong:
         op = None
 
         for t in tiles:
-            if t in self.symbols:
+            if t in SYMBOLS:
                 if op is not None:
                     return False
                 op = t
@@ -113,15 +92,15 @@ class ArithmeticMahjong:
                 a, b, c = nums[i], nums[j], nums[k]
 
                 try:
-                    if op == self.PLUS:
+                    if op == PLUS:
                         if a + b == c:
                             if self.require_sum_gte_10 and c < 10:
                                 continue
                             return True
-                    elif op == self.MULTIPLY:
+                    elif op == MULTIPLY:
                         if a * b == c:
                             return True
-                    elif op == self.POWER:
+                    elif op == POWER:
                         if a > 100 or b > 10:
                             continue
                         if a ** b == c:
@@ -136,14 +115,14 @@ class ArithmeticMahjong:
         # 为每个万用牌生成可能的替换值
         possible_values = []
         for joker in jokers:
-            if joker == self.JOKER_TIAO:
+            if joker == JOKER_TIAO:
                 possible_values.append(list(range(10)))
-            elif joker == self.JOKER_TONG:
+            elif joker == JOKER_TONG:
                 possible_values.append(list(range(10, 20)))
-            elif joker == self.JOKER_WAN:
+            elif joker == JOKER_WAN:
                 possible_values.append(list(range(20, 50)))
-            elif joker == self.JOKER_SYMBOL:
-                possible_values.append([self.PLUS, self.MULTIPLY, self.POWER])
+            elif joker == JOKER_SYMBOL:
+                possible_values.append([PLUS, MULTIPLY, POWER])
 
         # 生成所有可能的组合
         for combo in product(*possible_values):
@@ -159,7 +138,7 @@ class ArithmeticMahjong:
         op = None
 
         for t in tiles:
-            if t in self.symbols:
+            if t in SYMBOLS:
                 if op is not None:
                     return False
                 op = t
@@ -177,15 +156,15 @@ class ArithmeticMahjong:
                 a, b, c = nums[i], nums[j], nums[k]
 
                 try:
-                    if op == self.PLUS:
+                    if op == PLUS:
                         if a + b == c:
                             if self.require_sum_gte_10 and c < 10:
                                 continue
                             return True
-                    elif op == self.MULTIPLY:
+                    elif op == MULTIPLY:
                         if a * b == c:
                             return True
-                    elif op == self.POWER:
+                    elif op == POWER:
                         if a > 100 or b > 10:
                             continue
                         if a ** b == c:
@@ -247,7 +226,7 @@ class ArithmeticMahjong:
 
         # 修复排序：处理万用牌（字符串）和数字的混合
         def sort_key(x):
-            if x in self.symbols:
+            if x in SYMBOLS:
                 return (0, 0, str(x))  # 符号优先
             elif isinstance(x, str):  # 万用牌
                 return (1, 0, x)
@@ -363,7 +342,7 @@ class ArithmeticMahjong:
         if arith_ready_tiles:
             # 标注哪些牌需要万用
             annotated_tiles = []
-            for tile in sorted(arith_ready_tiles, key=lambda x: (x not in self.symbols, x)):
+            for tile in sorted(arith_ready_tiles, key=lambda x: (x not in SYMBOLS, x)):
                 if tile not in self.tiles_in_pool:
                     # 牌库中不存在，需要标注
                     if isinstance(tile, int) and 20 <= tile <= 49:
@@ -381,14 +360,14 @@ class ArithmeticMahjong:
                 is_ready_trad, trad_tiles = self.traditional_checker.is_ready_traditional(hand)
                 if is_ready_trad:
                     ready_info['传统麻将'] = sorted(trad_tiles,
-                                                    key=lambda x: (x not in self.symbols, x))
+                                                    key=lambda x: (x not in SYMBOLS, x))
 
             # 检查八小对听牌
             if self.eight_pairs_checker is not None:
                 is_ready_eight, eight_tiles = self.eight_pairs_checker.is_ready_eight_pairs(hand)
                 if is_ready_eight:
                     ready_info['八小对'] = sorted(eight_tiles,
-                                                  key=lambda x: (x not in self.symbols, x))
+                                                  key=lambda x: (x not in SYMBOLS, x))
 
         return len(ready_info) > 0, ready_info
 
@@ -407,7 +386,7 @@ class ArithmeticMahjong:
 
         # 使用优化的分组算法
         def sort_key(x):
-            if x in self.symbols:
+            if x in SYMBOLS:
                 return (0, 0, str(x))
             elif isinstance(x, str):  # 万用牌
                 return (1, 0, x)
@@ -443,78 +422,5 @@ class ArithmeticMahjong:
         return result
 
 
-def parse_hand(hand_str):
-    """
-    解析手牌字符串，转换为牌列表（支持万用牌）
-
-    支持的输入格式：
-    - 数字：直接写数字，用空格或逗号分隔
-    - 加号：+ 
-    - 乘号：*, x, X, × (都可以)
-    - 次方：^, ∧ (都可以)
-    - 万用牌：
-      - 条子万用：joker_tiao, jt, 条, 索, 条万用, 索子万用
-      - 筒子万用：joker_tong, jtong, 筒, 饼, 筒万用, 筒子万用
-      - 万字万用：joker_wan, jw, 万, 万万用, 万字万用
-      - 符号万用：joker_symbol, js, 符号, 箭, 符号万用, 风箭万用
-
-    示例：
-        "1 + 9 10 2 * 3 6 5 5 5 5" 
-        "1,+,9,10,2,x,3,6,5,5,5,5"
-        "1 + 9 10 2 X 3 6 条 5 5 5 ^ ^ ^"
-        "1 2 3 4 5 6 筒 7 7 8 8 8 11 11 12 12"
-
-    返回：
-        牌的列表，例如 [1, '+', 9, 10, 2, '×', 3, 6, 'joker_tiao', 5, 5, 5]
-    """
-    # 替换分隔符为空格
-    hand_str = hand_str.replace(',', ' ')
-    hand_str = hand_str.replace('，', ' ')  # 支持中文逗号
-
-    # 分割成单个token
-    tokens = hand_str.split()
-
-    result = []
-    for token in tokens:
-        token = token.strip()
-        if not token:
-            continue
-
-        # 处理符号
-        if token in ['+', '加']:
-            result.append('+')
-        elif token in ['*', 'x', 'X', '×', '乘']:
-            result.append('×')
-        elif token in ['^', '∧', '次方', '幂']:
-            result.append('∧')
-        # 处理万用牌
-        elif token in ['joker_tiao', 'jt', '条', '索', '条万用', '索子万用', '条子万用', 'ws', 'wcs', 's']:
-            result.append('joker_tiao')
-        elif token in ['joker_tong', 'jtong', '筒', '饼', '筒万用', '筒子万用', 'wp', 'wcm', 'p']:
-            result.append('joker_tong')
-        elif token in ['joker_wan', 'jw', '万', '万万用', '万字万用', 'wm', 'wcl', 'm']:
-            result.append('joker_wan')
-        elif token in ['joker_symbol', 'js', '符号', '箭', '符号万用', '风箭万用', '箭牌万用', 'wz', 'wcop', 'op']:
-            result.append('joker_symbol')
-        else:
-            # 尝试解析为数字
-            try:
-                num = int(token)
-                result.append(num)
-            except ValueError:
-                raise ValueError(f"无法识别的牌: '{token}'")
-
-    return result
-
-
-def format_hand(hand):
-    """
-    将牌列表格式化为易读的字符串
-
-    参数：
-        hand: 牌的列表
-
-    返回：
-        格式化的字符串
-    """
-    return ' '.join(str(tile) for tile in hand)
+# Re-export parse_hand and format_hand for backward compatibility
+# (they are imported from parser module at the top of this file)
