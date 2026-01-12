@@ -5,7 +5,7 @@ from parser import (
     PLUS, MULTIPLY, POWER, SYMBOLS,
     JOKER_TIAO, JOKER_TONG, JOKER_WAN, JOKER_SYMBOL, JOKERS,
     ALL_TILES,
-    parse_hand, format_hand,
+    parse_hand, format_hand, tile_sort_key,
 )
 
 # 导入传统麻将和八小对判定器
@@ -223,17 +223,7 @@ class ArithmeticMahjong:
         优化的分组算法
         使用剪枝和优先策略提高效率
         """
-
-        # 修复排序：处理万用牌（字符串）和数字的混合
-        def sort_key(x):
-            if x in SYMBOLS:
-                return (0, 0, str(x))  # 符号优先
-            elif isinstance(x, str):  # 万用牌
-                return (1, 0, x)
-            else:  # 数字
-                return (2, x, '')
-
-        tiles = sorted(tiles, key=sort_key)
+        tiles = sorted(tiles, key=tile_sort_key)
         return self._try_partition_with_pruning(tiles, [])
 
     def _try_partition_with_pruning(self, remaining, groups):
@@ -384,16 +374,7 @@ class ArithmeticMahjong:
             # 只需要一组
             return self.is_valid_group(tiles), [tiles] if self.is_valid_group(tiles) else []
 
-        # 使用优化的分组算法
-        def sort_key(x):
-            if x in SYMBOLS:
-                return (0, 0, str(x))
-            elif isinstance(x, str):  # 万用牌
-                return (1, 0, x)
-            else:  # 数字
-                return (2, x, '')
-
-        tiles_sorted = sorted(tiles, key=sort_key)
+        tiles_sorted = sorted(tiles, key=tile_sort_key)
         return self._try_partition_with_pruning(tiles_sorted, [])
 
     def format_result(self, success, groups, win_type=None):
