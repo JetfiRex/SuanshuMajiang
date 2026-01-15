@@ -185,6 +185,9 @@ class TraditionalMahjongChecker:
         if len(tiles) != 16:
             return False, []
         
+        # 关键修复：先排序，确保算法能正确找到面子组合
+        tiles = sorted(tiles)
+        
         tile_counter = Counter(tiles)
         tiles_with_pairs = [tile for tile, count in tile_counter.items() if count >= 2]
         
