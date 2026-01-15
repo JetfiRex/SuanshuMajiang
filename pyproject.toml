@@ -1,0 +1,15 @@
+[project]
+name = "suanshumajiang-main"
+version = "0.1.0"
+description = "算术麻将听牌计算器"
+requires-python = ">=3.13"
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
