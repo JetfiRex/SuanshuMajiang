@@ -114,6 +114,7 @@ JOKER_ALIASES = {
     # 符号万用
     'joker_symbol': JOKER_SYMBOL,
     'js': JOKER_SYMBOL,
+    '符': JOKER_SYMBOL,
     '符号': JOKER_SYMBOL,
     '箭': JOKER_SYMBOL,
     '符号万用': JOKER_SYMBOL,
@@ -589,6 +590,37 @@ def parse_mode1_already_won(hand_str: str):
         winning_method=winning_method,
         win_type=win_type  # 设置推断出的胡牌类型
     )
+    
+    # 验证手牌张数
+    from hand_validator import validate_hand_count, validate_special_winning
+    is_valid, error_msg = validate_hand_count(hand)
+    if not is_valid:
+        raise ValueError(f"手牌数量错误：{error_msg}")
+    
+    # 如果没有分组（可能是特殊胜利），需要额外验证
+    if not hand_groups or len(hand_groups) == 1:
+        # 检查是否为5个特殊胜利之一
+        special_types = ["八仙过海", "四仙过海", "天龙", "地龙", "十三幺"]
+        is_special = False
+        
+        for special_type in special_types:
+            is_valid_special, _ = validate_special_winning(hand, special_type)
+            if is_valid_special:
+                is_special = True
+                hand.win_type = special_type
+                break
+        
+        # 如果不是特殊胜利，检查能否组成算术麻将/传统麻将/八小对
+        if not is_special:
+            # 提取所有手牌（不包括鸣牌）
+            all_hand_tiles = []
+            for group in hand_groups:
+                all_hand_tiles.extend([tile.value if hasattr(tile, 'value') else tile for tile in group])
+            
+            # 检查能否组成有效分组
+            from hand_validator import can_form_valid_groups
+            if len(all_hand_tiles) == 16 and not can_form_valid_groups(all_hand_tiles):
+                raise ValueError("诈胡：手牌既不满足特殊胜利条件，也无法组成有效的算术麻将/传统麻将/八小对")
     
     return hand
 

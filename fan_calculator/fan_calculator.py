@@ -63,6 +63,15 @@ class FanCalculator:
         for fan in special_fans.results:
             all_fans.add(fan)
         
+        # 5.5. 检查特殊胜利番种（八仙过海、四仙过海、天龙、地龙、十三幺）
+        try:
+            from fan_calculator.fan_special_winning import check_all_special_winning_fans
+            special_winning_fans = check_all_special_winning_fans(hand)
+            for fan in special_winning_fans.results:
+                all_fans.add(fan)
+        except ImportError:
+            pass  # 如果模块不可用，跳过
+        
         # 6. 检查需要场上信息的番种
         context_fans = check_all_context_fans(hand)
         for fan in context_fans.results:

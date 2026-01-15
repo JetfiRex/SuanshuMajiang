@@ -73,6 +73,13 @@ class ArithmeticMahjong:
         else:
             self.traditional_checker = None
             self.eight_pairs_checker = None
+        
+        # 初始化特殊胜利判定器
+        try:
+            from special_winning_checker import SpecialWinningChecker
+            self.special_winning_checker = SpecialWinningChecker()
+        except ImportError:
+            self.special_winning_checker = None
 
     def is_valid_formula(self, tiles):
         """
@@ -233,10 +240,43 @@ class ArithmeticMahjong:
         """
         hand_len = len(hand)
         
+        # 首先检查5个特殊胜利（不限牌数，因为可能有单张杠）
+        win_options = []  # [(win_type, groups, fan_info), ...]
+        
+        if self.special_winning_checker is not None:
+            # 八仙过海
+            can_win_bx, _ = self.special_winning_checker.can_win_ba_xian_guo_hai(hand)
+            if can_win_bx:
+                fan_info = self._calculate_fan(hand, [], "八仙过海", winning_method)
+                win_options.append(("八仙过海", [], fan_info))
+            
+            # 四仙过海
+            can_win_sx, _ = self.special_winning_checker.can_win_si_xian_guo_hai(hand)
+            if can_win_sx:
+                fan_info = self._calculate_fan(hand, [], "四仙过海", winning_method)
+                win_options.append(("四仙过海", [], fan_info))
+            
+            # 天龙
+            can_win_tl, _ = self.special_winning_checker.can_win_tian_long(hand)
+            if can_win_tl:
+                fan_info = self._calculate_fan(hand, [], "天龙", winning_method)
+                win_options.append(("天龙", [], fan_info))
+            
+            # 地龙
+            can_win_dl, _ = self.special_winning_checker.can_win_di_long(hand)
+            if can_win_dl:
+                fan_info = self._calculate_fan(hand, [], "地龙", winning_method)
+                win_options.append(("地龙", [], fan_info))
+            
+            # 十三幺
+            can_win_ssy, _ = self.special_winning_checker.can_win_shi_san_yao(hand)
+            if can_win_ssy:
+                fan_info = self._calculate_fan(hand, [], "十三幺", winning_method)
+                win_options.append(("十三幺", [], fan_info))
+        
         # 算术麻将：16张
         if hand_len == 16:
-            # 收集所有可能的胡法及其番数
-            win_options = []  # [(win_type, groups, fan_info), ...]
+            # 继续收集其他可能的胡法
             
             # 1. 检查算术麻将胡法（4+4+4+4）
             can_win_arith, groups_arith = self._partition_optimized(hand)
@@ -335,10 +375,14 @@ class ArithmeticMahjong:
                 hand_obj.win_type = win_type
                 fan_result = calculate_fan(hand_obj, min_fan=self.min_fan)
                 
+                # 计算起胡番（排除单张杠宝牌）
+                starting_fan = fan_result.get_starting_fan(hand_obj)
+                
                 return {
                     'total_fan': fan_result.get_total_fan(),
+                    'starting_fan': starting_fan,  # 起胡番（用于判断是否满足起胡）
                     'fan_result': fan_result,
-                    'can_start': fan_result.get_total_fan() >= self.min_fan
+                    'can_start': starting_fan >= self.min_fan  # 使用起胡番判断
                 }
         except Exception as e:
             print(f"番数计算出错: {e}")
@@ -495,6 +539,15 @@ class ArithmeticMahjong:
         """
         根据胡牌信息构建模式1输入字符串
         """
+        # 对于特殊胜利（八仙过海、四仙过海、天龙、地龙、十三幺），不分组
+        special_win_types = ["八仙过海", "四仙过海", "天龙", "地龙", "十三幺"]
+        if win_type in special_win_types:
+            # 直接将所有牌列出来，不分组
+            tiles_str = ' '.join(str(tile) for tile in hand if tile not in [])
+            if winning_method:
+                tiles_str += f" {{{winning_method}}}"
+            return tiles_str
+        
         # 传统麻将牌面到算术麻将的反向映射
         tile_to_num = {
             # 条子 1-9

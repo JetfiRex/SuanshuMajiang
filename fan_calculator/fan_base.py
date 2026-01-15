@@ -177,6 +177,46 @@ class FanResults:
         """获取总番数"""
         return sum(r.get_total_fan() for r in self.results)
     
+    def get_starting_fan(self, hand=None) -> int:
+        """
+        获取起胡番数（用于判断是否满足起胡条件）
+        
+        规则：
+        - 单张杠的宝牌不算起胡番，但算总番
+        - 单张杠的万用牌算起胡番
+        
+        参数：
+            hand: Hand对象（用于判断单张杠宝牌）
+        
+        返回：
+            起胡番数
+        """
+        total = 0
+        
+        # 统计单张杠宝牌数量
+        dora_single_gang_count = 0
+        if hand and hasattr(hand, 'melded_groups'):
+            for melded in hand.melded_groups:
+                if melded.group_type == 'single_gang':
+                    tile = melded.tiles[0]
+                    tile_str = str(tile)
+                    dora_tiles = ['11d', '13d', '17d', '19d']
+                    if tile_str in dora_tiles or (hasattr(tile, 'is_dora') and tile.is_dora):
+                        dora_single_gang_count += 1
+        
+        # 计算起胡番：排除单张杠宝牌的番数
+        for result in self.results:
+            if result.fan_type == FanType.BAO_PAI:
+                # 宝牌番：只有单张杠的万用牌算起胡番
+                joker_count = result.count - dora_single_gang_count
+                if joker_count > 0:
+                    total += result.fan_type.fan_value * joker_count
+            else:
+                # 其他番种都算起胡番
+                total += result.get_total_fan()
+        
+        return total
+    
     def has_fan_type(self, fan_type: FanType) -> bool:
         """检查是否包含某个番种"""
         return any(r.fan_type == fan_type for r in self.results)
@@ -206,6 +246,7 @@ FAN_EXCLUSIONS = {
     FanType.QI_YI_SE: [FanType.DUAN_ER],
     FanType.SI_TONG_SHI: [FanType.SAN_TONG_SHI, FanType.LIANG_BAN_GAO, FanType.YI_BAN_GAO],
     FanType.LIAN_BA_DUI: [FanType.BA_XIAO_DUI, FanType.MEN_QING],  # 连八对包含八小对，且是门清
+    FanType.TIAN_LONG: [FanType.DI_LONG, FanType.MEN_QING, FanType.QUAN_DAI_CAI, FanType.QUAN_CAI],  # 天龙包含地龙、门清、全带彩、全彩
     
     # 64番排除规则
     FanType.CI_YI_SE: [FanType.CI_FANG],
@@ -215,9 +256,11 @@ FAN_EXCLUSIONS = {
     FanType.SAN_KE_ZI: [FanType.AN_KE, FanType.MING_KE],
     FanType.SAN_TONG_SHI: [FanType.LIANG_BAN_GAO, FanType.YI_BAN_GAO],
     FanType.QUAN_DUO_BEI: [FanType.QUAN_SAN_BEI],
+    FanType.QUAN_CAI: [FanType.QUAN_DAI_CAI],  # 全彩包含全带彩
     
     # 32番排除规则
     FanType.XIAO_SAN_YUAN: [],
+    FanType.DI_LONG: [FanType.MEN_QING, FanType.QUAN_DAI_CAI, FanType.QUAN_CAI],  # 地龙包含门清、全带彩、全彩
     
     # 12番排除规则
     FanType.JIA_YI_SE: [FanType.DUAN_ER],
