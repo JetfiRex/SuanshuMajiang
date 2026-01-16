@@ -6,8 +6,8 @@
 
 from typing import Optional, List, Tuple
 from collections import Counter
-from hand_structure import Hand, Tile
-from parser import PLUS, MULTIPLY, POWER, SYMBOLS
+from calculator_base.hand_structure import Hand, Tile
+from calculator_base.parser import PLUS, MULTIPLY, POWER, SYMBOLS
 from fan_calculator.fan_base import (
     FanType, FanResult, FanResults,
     get_all_tiles_for_fan

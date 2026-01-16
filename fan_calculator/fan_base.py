@@ -5,8 +5,8 @@
 
 from enum import Enum
 from typing import List, Set, Dict, Tuple
-from hand_structure import Hand, Tile, MeldedGroup
-from parser import PLUS, MULTIPLY, POWER, SYMBOLS
+from calculator_base.hand_structure import Hand, Tile, MeldedGroup
+from calculator_base.parser import PLUS, MULTIPLY, POWER, SYMBOLS
 
 
 class FanType(Enum):
@@ -120,7 +120,7 @@ TILE_COUNTS = {
     30: 2,
     32: 2,
     35: 2,
-    36: 2,
+    36: 4,
     40: 2,
     49: 2,
     # 符号

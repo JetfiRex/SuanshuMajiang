@@ -5,11 +5,11 @@
 
 from typing import Optional
 from fan_calculator.fan_base import FanResult, FanType
-from hand_structure import Hand
+from calculator_base.hand_structure import Hand
 
 # 导入特殊胜利判定器
 try:
-    from special_winning_checker import SpecialWinningChecker
+    from calculator_base.special_winning_checker import SpecialWinningChecker
     SPECIAL_AVAILABLE = True
 except ImportError:
     SPECIAL_AVAILABLE = False

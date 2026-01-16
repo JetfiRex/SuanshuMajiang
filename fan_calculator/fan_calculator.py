@@ -3,7 +3,7 @@
 整合所有番种判断，应用不重复规则，计算总番数
 """
 
-from hand_structure import Hand
+from calculator_base.hand_structure import Hand
 from fan_calculator.fan_base import FanResults, apply_exclusion_rules
 from fan_calculator.fan_number_based import check_all_number_based_fans
 from fan_calculator.fan_formula_based import check_all_formula_based_fans

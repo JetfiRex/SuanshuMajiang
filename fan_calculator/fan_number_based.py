@@ -4,7 +4,7 @@
 """
 
 from typing import Optional
-from hand_structure import Hand
+from calculator_base.hand_structure import Hand
 from fan_calculator.fan_base import (
     FanType, FanResult, FanResults,
     get_all_number_tiles, get_all_tiles_for_fan,

@@ -3,8 +3,8 @@
 提供交互式界面来判定胡牌和听牌，并显示番数
 """
 
-from mahjong_checker import ArithmeticMahjong
-from parser import (
+from calculator_base.mahjong_checker import ArithmeticMahjong
+from calculator_base.parser import (
     parse_hand, format_hand,
     parse_mode1_already_won, 
     parse_mode2_check_win,
@@ -25,22 +25,22 @@ def print_help():
     print("【四种输入模式说明】")
     print("-" * 70)
     print()
-    print("模式1️⃣: 16张已胡番数模式（最复杂，支持所有标记）")
+    print("模式1️: 16张已胡番数模式（最复杂，支持所有标记）")
     print("  格式: (鸣牌) (鸣牌) 手牌算式1 / 手牌算式2 [胡牌] {胡牌方式}")
     print("  示例: (11d) (2 2 2 2w) 3 + 10 13d / 5 + 7 12w / 9 [+] 5 14 {z}")
     print("  用途: 计算已胡牌的番数")
     print()
-    print("模式2️⃣: 16张是否胡模式")
+    print("模式2️: 16张是否胡模式")
     print("  格式: 16张牌（不分组，可以有括号鸣牌）")
     print("  示例: (1 + 9 10) 2 × 3 6 4 4 4 4 5 5 5 5")
     print("  用途: 判断是否能胡，如果能胡则显示分组和番数")
     print()
-    print("模式3️⃣: 有鸣牌听牌模式（15张）")
+    print("模式3️: 有鸣牌听牌模式（15张）")
     print("  格式: (鸣牌) (鸣牌) 剩余牌（11/7/3张）")
     print("  示例: (1 + 9 10) (2 × 3 6) 4 4 4 5 5 5 5")
     print("  用途: 判断听什么牌（有鸣牌情况）")
     print()
-    print("模式4️⃣: 无鸣牌听牌模式（15张）")
+    print("模式4️: 无鸣牌听牌模式（15张）")
     print("  格式: 15张牌（无鸣牌，无括号）")
     print("  示例: 1 + 9 2 × 3 6 4 4 4 4 5 5 5 5")
     print("  用途: 判断听什么牌（无鸣牌情况）")
@@ -80,10 +80,10 @@ def choose_mode():
     """选择输入模式"""
     print()
     print("【选择输入模式】")
-    print("1️⃣. 模式1: 16张已胡番数模式（已分组，有鸣牌标记）")
-    print("2️⃣. 模式2: 16张是否胡模式（未分组）")
-    print("3️⃣. 模式3: 有鸣牌听牌模式（15/11/7/3张）")
-    print("4️⃣. 模式4: 无鸣牌听牌模式（15/11/7/3张）")
+    print("1️. 模式1: 16张已胡番数模式（已分组，有鸣牌标记）")
+    print("2️. 模式2: 16张是否胡模式（未分组）")
+    print("3️. 模式3: 有鸣牌听牌模式（15/11/7/3张）")
+    print("4️. 模式4: 无鸣牌听牌模式（15/11/7/3张）")
     print()
 
     while True:
@@ -97,7 +97,7 @@ def mode1_already_won(mjong):
     """模式1：16张已胡番数模式"""
     print()
     print("=" * 70)
-    print("模式1️⃣: 16张已胡番数模式")
+    print("模式1️: 16张已胡番数模式")
     print("=" * 70)
     print("格式: (鸣牌) 手牌分组 / 手牌分组 [胡牌] {胡牌方式}")
     print("示例: (11d) (2 2 2 2w) 3 + 10 13d / 5 + 7 12w / 9 [+] 5 14 {z}")
@@ -174,7 +174,7 @@ def mode2_win_check(mjong):
     """模式2：16张是否胡模式"""
     print()
     print("=" * 70)
-    print("模式2️⃣: 16张是否胡模式")
+    print("模式2️: 16张是否胡模式")
     print("=" * 70)
     print("格式: 16张牌（可以有鸣牌括号）")
     print("示例: (1 + 9 10) 2 × 3 6 4 4 4 4 5 5 5 5")
@@ -263,7 +263,7 @@ def mode3_ready_with_melded(mjong):
     """模式3：有鸣牌听牌模式"""
     print()
     print("=" * 70)
-    print("模式3️⃣: 有鸣牌听牌模式")
+    print("模式3️: 有鸣牌听牌模式")
     print("=" * 70)
     print("格式: (鸣牌) (鸣牌) 剩余牌")
     print("示例: (1 + 9 10) (2 × 3 6) 4 4 4 5 5 5 5  (15张)")
@@ -326,7 +326,7 @@ def mode4_ready_no_melded(mjong):
     """模式4：无鸣牌听牌模式"""
     print()
     print("=" * 70)
-    print("模式4️⃣: 无鸣牌听牌模式")
+    print("模式4️: 无鸣牌听牌模式")
     print("=" * 70)
     print("格式: 15/11/7/3张牌（无鸣牌）")
     print("示例: 1 + 9 2 × 3 6 4 4 4 4 5 5 5 5  (15张)")
@@ -406,8 +406,10 @@ def main():
 
         # 询问是否继续
         print()
-        choice = input("是否继续判定？(y/n) [默认y]: ").strip().lower()
-        if choice == 'n' or choice == 'no':
+        choice = input("是否继续判定？(y/n) [默认n]: ").strip().lower()
+        if choice == 'y' or choice == 'yes':
+            pass
+        else:
             break
 
         print()
@@ -430,3 +432,4 @@ if __name__ == "__main__":
         import traceback
         traceback.print_exc()
         input("\n按任意键退出...")
+

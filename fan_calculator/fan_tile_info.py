@@ -5,7 +5,7 @@
 
 from typing import Optional
 from collections import Counter
-from hand_structure import Hand, Tile
+from calculator_base.hand_structure import Hand, Tile
 from fan_calculator.fan_base import (
     FanType, FanResult, FanResults,
     get_tile_count, get_all_tiles_for_fan, TILE_COUNTS
@@ -115,7 +115,7 @@ def check_quan_cai(hand: Hand) -> Optional[FanResult]:
     # 获取所有牌（不包括单张杠）
     tiles = get_all_tiles_for_fan(hand, include_single_gang=False)
     
-    from parser import SYMBOLS
+    from calculator_base.constants import SYMBOLS
     
     for tile in tiles:
         # 符号牌：允许

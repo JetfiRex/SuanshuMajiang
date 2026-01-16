@@ -4,12 +4,12 @@
 """
 
 from typing import Optional, List
-from hand_structure import Hand, Tile
+from calculator_base.hand_structure import Hand, Tile
 from fan_calculator.fan_base import FanType, FanResult, FanResults
 
 # 尝试导入传统麻将判定器
 try:
-    from traditional_mahjong import TraditionalMahjongChecker, EightPairsChecker
+    from calculator_base.traditional_mahjong import TraditionalMahjongChecker, EightPairsChecker
     TRADITIONAL_AVAILABLE = True
 except ImportError:
     TRADITIONAL_AVAILABLE = False

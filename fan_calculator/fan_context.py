@@ -4,8 +4,8 @@
 """
 
 from typing import Optional
-from hand_structure import Hand, MeldedGroup
-from parser import SYMBOLS
+from calculator_base.hand_structure import Hand, MeldedGroup
+from calculator_base.parser import SYMBOLS
 from fan_calculator.fan_base import FanType, FanResult, FanResults
 from fan_calculator.fan_formula_based import is_kezi_group
 
